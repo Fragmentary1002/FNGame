@@ -42,6 +42,10 @@ public class DialogManager : MonoBehaviour
     public int lastIndex;
     public GameObject victoryMenu;
     public GameObject failureMenu;
+
+    public bool isDialogComplete;//判断对话是否已完成
+
+    public BasicBehaviour basicBehaviour;
     //public bool isWin;
 
     // Start is called before the first frame update
@@ -61,6 +65,8 @@ public class DialogManager : MonoBehaviour
         UpdateImage("NPC", false);*/
         victoryMenu.SetActive(false);
         failureMenu.SetActive(false);
+        isDialogComplete = false;//初始设为false，表示对话未完成
+        basicBehaviour = GetComponent<BasicBehaviour>();//获取BasicBehaviour组件
     }
 
     // Update is called once per frame
@@ -72,7 +78,8 @@ public class DialogManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 dialogPanel.SetActive(true);
-
+                //再次按C键恢复对话
+                isDialogComplete = false;
             }
             if (Input.GetKeyDown(KeyCode.Return) && isReturn)
             {
@@ -113,6 +120,19 @@ public class DialogManager : MonoBehaviour
         {
             lastIndex = dialogIndex;
         }
+        if (!canInteract || distans > interactionDistance || isDialogComplete)
+        {
+            //满足以上条件关闭对话框
+            dialogPanel.SetActive(false);
+
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            //按Q时结束对话
+            EndDialog();
+        }
+
+
     }
 
     public void UpdateText(string _name, string _text)
@@ -157,6 +177,7 @@ public class DialogManager : MonoBehaviour
     {
         for (int i = 0; i < dialogRows.Length; i++)
         {
+
             string[] cells = dialogRows[i].Split(',');
             if (cells[0] == "#" && int.Parse(cells[1]) == dialogIndex)
             {
@@ -187,7 +208,11 @@ public class DialogManager : MonoBehaviour
                 else if (lastIndex == 26)
                 {
                     victoryMenu.SetActive(true);
+                    isDialogComplete = true;
                 }
+                dialogIndex = 0;//全部对话完成后，即对话结束后将对话索引重新设为0
+                isDialogComplete = true;//表示对话已经完成
+                break;
             }
         }
     }
@@ -229,6 +254,13 @@ public class DialogManager : MonoBehaviour
     {
         victoryMenu.SetActive(false);
         failureMenu.SetActive(false);
+    }
+
+    public void EndDialog()
+    {
+        //用于结束对话
+        dialogPanel.SetActive(false);
+        isDialogComplete = true;
     }
 
 }
