@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CPRBehaviour : GenericBehaviour
 {
+    public Transform target;
     private bool isKneel = false;       // 当前是否处于跪下状态
 
     void Start()
@@ -27,10 +28,16 @@ public class CPRBehaviour : GenericBehaviour
     {
         if(Input.GetButtonDown("Test"))
         {
+            MatchTarget();
             KneelDown();
         }
     }
 
+    private void MatchTarget()
+    {
+        behaviourManager.GetAnim.MatchTarget(target.position, target.rotation, AvatarTarget.Root, 
+                                                new MatchTargetWeightMask(Vector3.one, 1f), 0f, 0.6f, true);
+    }
 
     // 触发下跪动作
     private void KneelDown()
