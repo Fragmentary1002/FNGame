@@ -11,7 +11,7 @@ public class CPRBehaviour : GenericBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
@@ -20,7 +20,7 @@ public class CPRBehaviour : GenericBehaviour
         TestFunc();
 
         // 跪下时按移动键站起
-        if(isKneel && behaviourManager.IsMoving())
+        if (isKneel && behaviourManager.IsMoving())
         {
             StandUp();
         }
@@ -28,7 +28,7 @@ public class CPRBehaviour : GenericBehaviour
 
     private void TestFunc()
     {
-        if(Input.GetButtonDown("Test"))
+        if (Input.GetButtonDown("Test"))
         {
             KneelDown();
         }
@@ -38,32 +38,32 @@ public class CPRBehaviour : GenericBehaviour
     {
         // 找到可匹配位置的对象并记录位置
         IMatchable tar = other.GetComponent<IMatchable>();
-        if(tar != null)
+        if (tar != null)
         {
             matchTarget = tar.GetMatchTarget();
             Debug.Log("Matched:" + matchTarget);
         }
     }
 
-    void OnTriggerExit(Collider other) 
+    void OnTriggerExit(Collider other)
     {
         // 检测被匹配的对象是否离开范围
-        if(matchTarget != null)
+        if (matchTarget != null)
         {
             IMatchable tar = other.GetComponent<IMatchable>();
             // 若离开范围则将matchTarget重置为null
-            if(tar != null && matchTarget == tar.GetMatchTarget())
+            if (tar != null && matchTarget == tar.GetMatchTarget())
             {
                 Debug.Log("Miss match:" + matchTarget);
                 matchTarget = null;
             }
-        }    
+        }
     }
 
     // 触发协程将玩家移动到匹配位置
     private void MatchTarget()
     {
-        if(matchTarget != null)
+        if (matchTarget != null)
         {
             StartCoroutine(IMatchTarget());
         }
@@ -81,23 +81,23 @@ public class CPRBehaviour : GenericBehaviour
         {
             isInTransition = false;
             // 遍历每个layer的Transition状态
-            for(int i = 0; i < cnt && !isInTransition; i++)
+            for (int i = 0; i < cnt && !isInTransition; i++)
             {
                 isInTransition = behaviourManager.GetAnim.IsInTransition(i);
             }
 
             // 若某个layer处于Transition状态，则等到下一帧
-            if(isInTransition)
+            if (isInTransition)
             {
                 yield return null;
             }
 
-        } while(isInTransition);
+        } while (isInTransition);
 
         // Transition结束后执行MatchTarget
-        behaviourManager.GetAnim.MatchTarget(matchTarget.position, matchTarget.rotation, AvatarTarget.Root, 
+        behaviourManager.GetAnim.MatchTarget(matchTarget.position, matchTarget.rotation, AvatarTarget.Root,
                                                 new MatchTargetWeightMask(Vector3.one, 1f), 0f, 0.5f);
-        
+
     }
 
     // 触发下跪动作
