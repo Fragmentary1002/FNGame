@@ -100,6 +100,12 @@ public class MoveBehaviour : GenericBehaviour
 	// Deal with the basic player movement
 	void MovementManagement(float horizontal, float vertical)
 	{
+		// 无法移动时提前退出
+		if (!behaviourManager.movable)
+		{
+			return;
+		}
+
 		// On ground, obey gravity.
 		if (behaviourManager.IsGrounded())
 			behaviourManager.GetRigidBody.useGravity = true;
