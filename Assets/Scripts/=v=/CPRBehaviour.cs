@@ -60,15 +60,6 @@ public class CPRBehaviour : GenericBehaviour
         }
     }
 
-    // 触发协程将玩家移动到匹配位置
-    private void MatchTarget()
-    {
-        if (matchTarget != null)
-        {
-            StartCoroutine(IMatchTarget());
-        }
-    }
-
     // 玩家移动到匹配位置
     IEnumerator IMatchTarget()
     {
@@ -103,12 +94,23 @@ public class CPRBehaviour : GenericBehaviour
     // 触发下跪动作
     private void KneelDown()
     {
-        behaviourManager.movable = false;
         behaviourManager.GetAnim.SetTrigger("KneelDown");
     }
 
+    // 下跪动作开始时执行
+    private void KneelStart()
+    {
+        // 设置为不可移动和瞄准
+        behaviourManager.movable = false;
+        // 触发协程将玩家移动到匹配位置
+        if (matchTarget != null)
+        {
+            StartCoroutine(IMatchTarget());
+        }
+    }
+
     // 站立完成时执行
-    public void KneelComplete()
+    private void KneelComplete()
     {
         isKneel = true;
     }
