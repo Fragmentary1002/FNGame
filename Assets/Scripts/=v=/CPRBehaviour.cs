@@ -8,10 +8,14 @@ public class CPRBehaviour : GenericBehaviour
 {
     private Transform matchTarget;      // 跪下时移动到的目标点
     private bool isKneel = false;       // 当前是否处于跪下状态
+    [SerializeField]
+    private GameObject mainCam;         // 主相机
+    [SerializeField]
+    private GameObject CPRCam;          // CPR视角相机 
 
     void Start()
     {
-
+        
     }
 
     void Update()
@@ -107,9 +111,12 @@ public class CPRBehaviour : GenericBehaviour
         {
             StartCoroutine(IMatchTarget());
         }
+        // 关闭主相机，切换到CPR视角
+        mainCam.SetActive(false);
+        CPRCam.SetActive(true);
     }
 
-    // 站立完成时执行
+    // 跪下动作完成时执行
     private void KneelComplete()
     {
         isKneel = true;
@@ -118,13 +125,21 @@ public class CPRBehaviour : GenericBehaviour
     // 触发站立动作
     private void StandUp()
     {
-        isKneel = false;
         behaviourManager.GetAnim.SetTrigger("StandUp");
+    }
+
+    // 站立动作开始时执行
+    private void StandStart()
+    {
+        isKneel = false;
     }
 
     // 站立动作完成时执行
     private void StandComplete()
     {
         behaviourManager.movable = true;
+        // 从CPR视角切换回主相机
+        mainCam.SetActive(true);
+        CPRCam.SetActive(false);
     }
 }
