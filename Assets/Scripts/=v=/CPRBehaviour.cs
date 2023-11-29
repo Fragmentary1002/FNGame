@@ -6,8 +6,14 @@ using UnityEngine;
 
 public class CPRBehaviour : GenericBehaviour
 {
+    private const string BUTTON_KNEELDOWN = "Test";    // 跪下
+    private const string BUTTON_TAP = "Num1";          // 拍打
+    private const string BUTTON_PRESS = "Num2";        // 胸部按压
+    private const string BUTTON_RESPIRATION = "Num3";  // 人工呼吸
+
     private Transform matchTarget;      // 跪下时移动到的目标点
     private bool isKneel = false;       // 当前是否处于跪下状态
+    private bool isPress = false;
     [SerializeField]
     private GameObject mainCam;         // 主相机
     [SerializeField]
@@ -15,26 +21,45 @@ public class CPRBehaviour : GenericBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
     {
-        // TODO: 测试函数
-        TestFunc();
-
-        // 跪下时按移动键站起
-        if (isKneel && behaviourManager.IsMoving())
+        // 动作：跪下
+        if (!isKneel && Input.GetButtonDown(BUTTON_KNEELDOWN))
         {
-            StandUp();
+            behaviourManager.GetAnim.SetTrigger("KneelDown");
         }
-    }
 
-    private void TestFunc()
-    {
-        if (Input.GetButtonDown("Test"))
+        // 后续的动作都是在跪下后才能触发
+        if (!isKneel)
         {
-            KneelDown();
+            return;
+        }
+
+        // 按移动键站起
+        if (behaviourManager.IsMoving())
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("StandUp");
+        }
+        // 动作：胸部按压
+        else if (Input.GetButtonDown(BUTTON_PRESS))
+        {
+            press();
+        }
+        // 动作：拍打
+        else if (Input.GetButtonDown(BUTTON_TAP))
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("Tap");
+        }
+        // 动作：人工呼吸
+        else if (Input.GetButtonDown(BUTTON_RESPIRATION))
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("Respiration");
         }
     }
 
@@ -95,16 +120,28 @@ public class CPRBehaviour : GenericBehaviour
 
     }
 
-    /* 触发下跪动作 */
-    private void KneelDown()
+    /* 动作：胸部按压 */
+    private void press()
     {
-        behaviourManager.GetAnim.SetTrigger("KneelDown");
+        if (!isPress)
+        {
+            behaviourManager.GetAnim.SetTrigger("C1");
+            isPress = true;
+        }
+        else
+        {
+            behaviourManager.GetAnim.SetTrigger("C2");
+        }
     }
 
-    /* 触发站立动作 */
-    private void StandUp()
+    /* 动作：结束胸部按压 */
+    private void pressExit()
     {
-        behaviourManager.GetAnim.SetTrigger("StandUp");
+        if (isPress)
+        {
+            // behaviourManager.GetAnim.SetTrigger("C3");
+            isPress = false;
+        }
     }
 
     /* 动画事件：开始下跪 */
