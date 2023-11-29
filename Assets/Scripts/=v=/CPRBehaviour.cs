@@ -64,7 +64,7 @@ public class CPRBehaviour : GenericBehaviour
         }
     }
 
-    // 玩家移动到匹配位置
+    /* 协程：玩家移动到匹配位置 */
     IEnumerator IMatchTarget()
     {
         bool isInTransition;
@@ -95,14 +95,20 @@ public class CPRBehaviour : GenericBehaviour
 
     }
 
-    // 触发下跪动作
+    /* 触发下跪动作 */
     private void KneelDown()
     {
         behaviourManager.GetAnim.SetTrigger("KneelDown");
     }
 
-    // 下跪动作开始时执行
-    private void KneelStart()
+    /* 触发站立动作 */
+    private void StandUp()
+    {
+        behaviourManager.GetAnim.SetTrigger("StandUp");
+    }
+
+    /* 动画事件：开始下跪 */
+    private void AnimEvent_KneelStart()
     {
         // 设置为不可移动和瞄准
         behaviourManager.movable = false;
@@ -116,26 +122,21 @@ public class CPRBehaviour : GenericBehaviour
         CPRCam.SetActive(true);
     }
 
-    // 跪下动作完成时执行
-    private void KneelComplete()
+    /* 动画事件：结束下跪 */
+    private void AnimEvent_KneelEnd()
     {
         isKneel = true;
     }
 
-    // 触发站立动作
-    private void StandUp()
-    {
-        behaviourManager.GetAnim.SetTrigger("StandUp");
-    }
 
-    // 站立动作开始时执行
-    private void StandStart()
+    /* 动画事件：开始站立 */
+    private void AnimEvent_StandStart()
     {
         isKneel = false;
     }
 
-    // 站立动作完成时执行
-    private void StandComplete()
+    /* 动画事件：结束站立 */
+    private void AnimEvent_StandEnd()
     {
         behaviourManager.movable = true;
         // 从CPR视角切换回主相机
