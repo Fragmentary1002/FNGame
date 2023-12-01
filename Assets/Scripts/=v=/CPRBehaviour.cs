@@ -10,10 +10,13 @@ public class CPRBehaviour : GenericBehaviour
     private const string BUTTON_TAP = "Num1";          // 拍打
     private const string BUTTON_PRESS = "Num2";        // 胸部按压
     private const string BUTTON_RESPIRATION = "Num3";  // 人工呼吸
+    private const string BUTTON_SCAN = "Num1";          // 扫描
+    private const string BUTTON_CLICK = "Num2";          // 点击
 
     private Transform matchTarget;      // 跪下时移动到的目标点
     private bool isKneel = false;       // 当前是否处于跪下状态
     private bool isPress = false;
+    private bool isUnctrl = false;
     [SerializeField]
     private GameObject mainCam;         // 主相机
     [SerializeField]
@@ -26,40 +29,10 @@ public class CPRBehaviour : GenericBehaviour
 
     void Update()
     {
-        // 动作：跪下
-        if (!isKneel && Input.GetButtonDown(BUTTON_KNEELDOWN))
+        if (!isUnctrl)
         {
-            behaviourManager.GetAnim.SetTrigger("KneelDown");
-        }
-
-        // 后续的动作都是在跪下后才能触发
-        if (!isKneel)
-        {
-            return;
-        }
-
-        // 按移动键站起
-        if (behaviourManager.IsMoving())
-        {
-            pressExit();
-            behaviourManager.GetAnim.SetTrigger("StandUp");
-        }
-        // 动作：胸部按压
-        else if (Input.GetButtonDown(BUTTON_PRESS))
-        {
-            press();
-        }
-        // 动作：拍打
-        else if (Input.GetButtonDown(BUTTON_TAP))
-        {
-            pressExit();
-            behaviourManager.GetAnim.SetTrigger("Tap");
-        }
-        // 动作：人工呼吸
-        else if (Input.GetButtonDown(BUTTON_RESPIRATION))
-        {
-            pressExit();
-            behaviourManager.GetAnim.SetTrigger("Respiration");
+            ctControl();
+            cprControl();
         }
     }
 
@@ -120,6 +93,67 @@ public class CPRBehaviour : GenericBehaviour
 
     }
 
+    /* CT控制 */
+    private void ctControl()
+    {
+        // 非跪下状态才能触发动作
+        if (isKneel)
+        {
+            return;
+        }
+
+        // 动作：扫描
+        if (Input.GetButtonDown(BUTTON_SCAN))
+        {
+            behaviourManager.GetAnim.SetTrigger("Scan");
+        }
+        // 动作：点击
+        else if (Input.GetButtonDown(BUTTON_CLICK))
+        {
+            behaviourManager.GetAnim.SetTrigger("Click");
+        }
+    }
+
+    /* 心肺复苏控制 */
+    private void cprControl()
+    {
+        // 动作：跪下
+        if (!isKneel && Input.GetButtonDown(BUTTON_KNEELDOWN))
+        {
+            behaviourManager.GetAnim.SetTrigger("KneelDown");
+        }
+
+        // 后续的动作都是在跪下后才能触发
+        if (!isKneel)
+        {
+            return;
+        }
+
+        // 按移动键站起
+        if (behaviourManager.IsMoving())
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("StandUp");
+        }
+        // 动作：胸部按压
+        else if (Input.GetButtonDown(BUTTON_PRESS))
+        {
+            press();
+        }
+        // 动作：拍打
+        else if (Input.GetButtonDown(BUTTON_TAP))
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("Tap");
+        }
+        // 动作：人工呼吸
+        else if (Input.GetButtonDown(BUTTON_RESPIRATION))
+        {
+            pressExit();
+            behaviourManager.GetAnim.SetTrigger("Respiration");
+        }
+    }
+
     /* 动作：胸部按压 */
     private void press()
     {
@@ -147,6 +181,8 @@ public class CPRBehaviour : GenericBehaviour
     /* 动画事件：开始下跪 */
     private void AnimEvent_KneelStart()
     {
+        // 防止在跪下过程中触发其他动作
+        isUnctrl = true;
         // 设置为不可移动和瞄准
         behaviourManager.movable = false;
         // 触发协程将玩家移动到匹配位置
@@ -162,6 +198,7 @@ public class CPRBehaviour : GenericBehaviour
     /* 动画事件：结束下跪 */
     private void AnimEvent_KneelEnd()
     {
+        isUnctrl = false;
         isKneel = true;
     }
 
@@ -169,12 +206,14 @@ public class CPRBehaviour : GenericBehaviour
     /* 动画事件：开始站立 */
     private void AnimEvent_StandStart()
     {
+        isUnctrl = true;
         isKneel = false;
     }
 
     /* 动画事件：结束站立 */
     private void AnimEvent_StandEnd()
     {
+        isUnctrl = false;
         behaviourManager.movable = true;
         // 从CPR视角切换回主相机
         mainCam.SetActive(true);
